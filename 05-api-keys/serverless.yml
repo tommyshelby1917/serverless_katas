@@ -1,0 +1,22 @@
+service: curso-sls-api-keys
+
+frameworkVersion: '3'
+
+provider:
+    name: aws
+    runtime: nodejs12.x
+    region: eu-central-1
+    stage: ${opt:stage, 'dev'}
+    profile: curso_sls
+    apiGateway:
+        apiKeys:
+            - ${file(./config.${self:provider.stage}.json):API_KEY}
+
+functions:
+    hello:
+        handler: handler.hello
+        events:
+            - http:
+                  path: /
+                  method: get
+                  private: true

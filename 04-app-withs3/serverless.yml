@@ -1,0 +1,38 @@
+service: curso-sls-s3
+
+frameworkVersion: '3'
+
+custom:
+    bucket: training-sls
+    default_stage: dev
+    apigwBinary:
+        types:
+            - '*/*'
+
+plugins:
+    - serverless-apigw-binary
+
+provider:
+    name: aws
+    runtime: nodejs12.x
+    profile: curso_sls
+    region: eu-central-1
+    # Si no se indica un stage coge por defecte el que hemos puesto
+    # en la variable custom
+    stage: ${opt:stage, self:custom.default_stage}
+    vpc:
+        securityGroupsIds:
+            - sg-0831bd5d6bace5aad
+        subnetsIds:
+            - subnet-0f60176cca551ce09
+            - subnet-031bba1cf3f802a15
+
+functions:
+    uploadS3File:
+        handler: handler.app
+        environment:
+            bucket: ${self:custom.bucket}-${self:provider.stage}
+        events:
+            - http:
+                  path: /upload
+                  method: post
